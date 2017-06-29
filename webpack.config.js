@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    simple: './lib/js/src/simple/simpleRoot.js'
+    naive: './lib/js/motivation/naive/application.js'
   },
   output: {
     path: path.join(__dirname, "bundledOutputs"),
