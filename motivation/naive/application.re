@@ -1,1 +1,1 @@
-ReactDOMRe.renderToElementWithId <Calculator /> "index";
+ReactDOMRe.renderToElementWithId <View /> "index";
