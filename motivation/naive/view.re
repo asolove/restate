@@ -9,7 +9,7 @@ let show = fun
   | Op Subtract => "-"
   | Op Multiply => "*"
   | Op Divide => "/"
-  | Op Equal => "="
+  | Equal => "="
   | Cancel => "C"
   | CancelEntry => "CE"
   ;
@@ -65,7 +65,7 @@ let make _children => {
             <td colSpan=2> (button (Digit 0)) </td>
             <td> (button Decimal) </td>
             <td> </td>
-            <td> (button (Op Equal)) </td>
+            <td> (button Equal) </td>
             <td> (button Percent) </td>
           </tr>
         </tbody>
