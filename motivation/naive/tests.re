@@ -40,5 +40,15 @@ module Make = fun(Updater: Updater.Updater) => {
       "After an operation, subtraction serves to negate the upcoming operand"
       [Digit 5, Op Multiply, Op Subtract, Digit 2]
       "-2.";
+
+    assertResult
+      "After negation, upcoming operand used correctly as negative"
+      [Digit 3, Op Multiply, Op Subtract, Digit 7, Equal]
+      "-21.";
+
+    assertResult
+      "After previous operation, decimal resets display"
+      [Digit 1, Op Multiply, Digit 2, Equal, Decimal]
+      "0.";
   };
 }

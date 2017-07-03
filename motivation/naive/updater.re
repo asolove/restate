@@ -14,7 +14,6 @@ module NaiveUpdater: Updater = {
   type t = {
     pending: option (float, operation),
     decimal: bool,
-    lastInput: action,
     readout: string,
     readoutEditable: bool
   };
@@ -22,7 +21,6 @@ module NaiveUpdater: Updater = {
   let initialState: t = {
     pending: None,
     decimal: false,
-    lastInput: Cancel,
     readout: "0.",
     readoutEditable: true
   };
@@ -30,14 +28,13 @@ module NaiveUpdater: Updater = {
   let update state action => {
     switch action {
     | Cancel => initialState
-    | CancelEntry => {...state, readout: "0.", decimal: false, lastInput: action}
+    | CancelEntry => {...state, readout: "0.", decimal: false}
     | Decimal => {
-      let readout = switch state.lastInput {
-        | Op Subtract => "-0."
-        | Digit _d => state.readout
-        | _else => "0."
-      };
-      {...state, readout, decimal: true, lastInput: Digit 0}
+      if (state.readoutEditable) {
+        {...state, decimal: true}
+      } else {
+        {...state, decimal: true, readout: "0."}
+      }
     }
     | Digit n => {
       /* this is totally wrong if any operation was before this */
@@ -49,14 +46,15 @@ module NaiveUpdater: Updater = {
       let readout = if state.decimal {
         startReadout ^ (string_of_int n);
       } else {
-        let integralPart = if (startReadout == "0.") {
+        let sign = if (String.get startReadout 0 == '-') { "-" } else { "" };
+        let integralPart = if (startReadout == "0." || startReadout == "-0.") {
           ""
         } else {
           String.sub startReadout 0 (String.index startReadout  '.')
         };
-        integralPart ^ (string_of_int n) ^ "."
+        sign ^ integralPart ^ (string_of_int n) ^ "."
       };
-      { ...state, readout, readoutEditable: true, lastInput: action }
+      { ...state, readout, readoutEditable: true }
     }
     | Percent => {
       let readout = string_of_float ((float_of_string state.readout) /. 100.0);
@@ -75,12 +73,16 @@ module NaiveUpdater: Updater = {
       }
     }
     | Op op => {
-      switch state.pending {
-      | None => {...state, pending: Some (float_of_string state.readout, op), readout: "0.", decimal: false }
-      | Some (savedNumber, savedOp) => {
-        let result = evaluate savedNumber savedOp (float_of_string state.readout);
-        {...state, pending: Some (result, op), readout: string_of_float result, readoutEditable: false, decimal: false}
-      }
+      if (op == Subtract && state.readoutEditable && (state.readout == "0." || state.readout == "-0.")) {
+        {...state, readout: if (state.readout == "-0.") { "0."} else { "-0."}}
+      } else {
+        switch state.pending {
+        | None => {...state, pending: Some (float_of_string state.readout, op), readout: "0.", decimal: false }
+        | Some (savedNumber, savedOp) => {
+          let result = evaluate savedNumber savedOp (float_of_string state.readout);
+          {...state, pending: Some (result, op), readout: string_of_float result, readoutEditable: false, decimal: false}
+        }
+        }
       }
     }
     }
