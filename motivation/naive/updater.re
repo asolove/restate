@@ -37,7 +37,6 @@ module NaiveUpdater: Updater = {
       }
     }
     | Digit n => {
-      /* this is totally wrong if any operation was before this */
       let startReadout = if state.readoutEditable {
         state.readout
       } else {
@@ -62,9 +61,8 @@ module NaiveUpdater: Updater = {
     }
     | Equal => {
       switch state.pending {
-      | None => state
+      | None => {...state, readoutEditable: false, decimal: false}
       | Some (n, o) => {
-        ...state,
         pending: None,
         readout: string_of_float (evaluate n o (float_of_string state.readout)),
         readoutEditable: false,
@@ -80,7 +78,7 @@ module NaiveUpdater: Updater = {
         | None => {...state, pending: Some (float_of_string state.readout, op), readout: "0.", decimal: false }
         | Some (savedNumber, savedOp) => {
           let result = evaluate savedNumber savedOp (float_of_string state.readout);
-          {...state, pending: Some (result, op), readout: string_of_float result, readoutEditable: false, decimal: false}
+          {pending: Some (result, op), readout: string_of_float result, readoutEditable: false, decimal: false}
         }
         }
       }
