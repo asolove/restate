@@ -50,10 +50,5 @@ module Make = fun(Updater: Updater.Updater) => {
       "After previous operation, decimal resets display"
       [Digit 1, Op Multiply, Digit 2, Equal, Decimal]
       "0.";
-
-    assertResult
-      "After previous equals, next digit starts new number"
-      [Digit 1, Decimal, Equal, Digit 1] 
-      "1.";
   };
 }
